@@ -1,44 +1,282 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dating Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-      /* Smooth scrolling and disable standard tap highlights */
-      html {
-        -webkit-tap-highlight-color: transparent;
-      }
-      body {
-        /* Use Telegram theme variables with fallbacks */
-        background-color: var(--tg-theme-bg-color, #17212b);
-        color: var(--tg-theme-text-color, #ffffff);
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        overscroll-behavior: none;
-      }
-      
-      /* Custom Neon Glow Utilities */
-      .neon-shadow {
-        box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
-      }
-      .neon-text {
-        text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
-      }
+        /* Reset and Base Styles */
+        html {
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            background-color: var(--tg-theme-bg-color, #17212b);
+            color: var(--tg-theme-text-color, #ffffff);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overscroll-behavior: none;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Custom Animations */
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.6s ease-out forwards;
+        }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+
+        /* Neon Effects */
+        .neon-shadow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Card Styles */
+        .selection-card {
+            background-color: var(--tg-theme-secondary-bg-color, #242f3d);
+            border: 1px solid transparent;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+        }
+        .selection-card.active {
+            background-color: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+            opacity: 1;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+        .selection-card .icon-wrapper {
+            background-color: rgba(55, 65, 81, 0.5);
+            color: #9ca3af;
+            transition: all 0.3s ease;
+        }
+        .selection-card.active .icon-wrapper {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .selection-card .label {
+            color: #9ca3af;
+        }
+        .selection-card.active .label {
+            color: #c4b5fd;
+        }
+
+        /* Button Pulse */
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-fast {
+            animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
 </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<body class="relative overflow-hidden p-6">
+
+    <!-- Decorative Background -->
+    <div class="absolute top-[-10%] right-[-10%] w-64 h-64 bg-violet-600/20 rounded-full blur-[80px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-[-10%] left-[-10%] w-64 h-64 bg-fuchsia-600/20 rounded-full blur-[80px] pointer-events-none z-0"></div>
+
+    <!-- Header -->
+    <header class="mb-8 mt-4 flex items-center gap-3 z-10 animate-fade-in-up">
+        <div class="bg-violet-500 p-2 rounded-xl neon-shadow">
+            <i data-lucide="sparkles" class="text-white w-6 h-6"></i>
+        </div>
+        <h1 class="text-2xl font-bold tracking-tight">Dating App</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col z-10 w-full max-w-md mx-auto">
+        
+        <!-- Section: Me -->
+        <div class="w-full mb-8 animate-fade-in-up delay-100">
+            <h2 class="text-lg font-semibold mb-4 opacity-80 pl-1">Кто ты?</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectOption('me', 'male')" id="btn-me-male" class="selection-card relative overflow-hidden rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transform active:scale-95">
+                    <div class="icon-wrapper p-3 rounded-full">
+                        <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <span class="label font-medium">Парень</span>
+                </button>
+                <button onclick="selectOption('me', 'female')" id="btn-me-female" class="selection-card relative overflow-hidden rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transform active:scale-95">
+                    <div class="icon-wrapper p-3 rounded-full">
+                        <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <span class="label font-medium">Девушка</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Section: Looking For -->
+        <div class="w-full mb-8 animate-fade-in-up delay-200">
+            <h2 class="text-lg font-semibold mb-4 opacity-80 pl-1">Кого ищем?</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="selectOption('looking_for', 'male')" id="btn-looking-male" class="selection-card relative overflow-hidden rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transform active:scale-95">
+                    <div class="icon-wrapper p-3 rounded-full">
+                        <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <span class="label font-medium">Парня</span>
+                </button>
+                <button onclick="selectOption('looking_for', 'female')" id="btn-looking-female" class="selection-card relative overflow-hidden rounded-2xl p-6 flex flex-col items-center justify-center gap-3 transform active:scale-95">
+                    <div class="icon-wrapper p-3 rounded-full">
+                        <i data-lucide="user" class="w-8 h-8"></i>
+                    </div>
+                    <span class="label font-medium">Девушку</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="hidden mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-xl text-red-200 text-sm text-center animate-pulse-fast">
+            Пожалуйста, выберите оба пункта
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto pt-6 pb-4 sticky bottom-0 z-20 w-full max-w-md mx-auto">
+        <button id="submit-btn" onclick="submitSelection()" class="w-full py-4 px-6 rounded-2xl font-bold text-lg tracking-wide flex items-center justify-center gap-3 transition-all duration-300 transform shadow-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white neon-shadow hover:scale-[1.02] active:scale-95">
+            <i data-lucide="heart" class="fill-current w-6 h-6"></i>
+            <span>🚀 НАЙТИ ПАРУ</span>
+        </button>
+    </footer>
+
+    <script>
+        // --- Initialization ---
+        const tg = window.Telegram.WebApp;
+        const STORAGE_KEY = 'dating_app_preferences';
+
+        let state = {
+            me: null,
+            looking_for: null
+        };
+
+        let isSubmitting = false;
+
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Telegram Setup
+            tg.ready();
+            tg.expand();
+            if (tg.setHeaderColor) {
+                tg.setHeaderColor('secondary_bg_color'); // Match theme
+            }
+
+            // Load saved state
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.me) selectOption('me', parsed.me, false);
+                    if (parsed.looking_for) selectOption('looking_for', parsed.looking_for, false);
+                }
+            } catch (e) {
+                console.error("Error loading state", e);
+            }
+        });
+
+        // --- Logic ---
+
+        function selectOption(category, value, save = true) {
+            // Update State
+            state[category] = value;
+            
+            // Hide Error
+            document.getElementById('error-message').classList.add('hidden');
+
+            // Haptics
+            if (save && tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+
+            // Update UI
+            updateCardVisuals(category, value);
+
+            // Save to LocalStorage
+            if (save) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            }
+        }
+
+        function updateCardVisuals(category, selectedValue) {
+            // IDs of buttons for this category
+            const maleBtnId = `btn-${category === 'looking_for' ? 'looking' : category}-male`;
+            const femaleBtnId = `btn-${category === 'looking_for' ? 'looking' : category}-female`;
+
+            const maleBtn = document.getElementById(maleBtnId);
+            const femaleBtn = document.getElementById(femaleBtnId);
+
+            // Reset classes
+            maleBtn.classList.remove('active');
+            femaleBtn.classList.remove('active');
+
+            // Add active class
+            if (selectedValue === 'male') {
+                maleBtn.classList.add('active');
+            } else if (selectedValue === 'female') {
+                femaleBtn.classList.add('active');
+            }
+        }
+
+        function submitSelection() {
+            if (isSubmitting) return;
+
+            // Validation
+            if (!state.me || !state.looking_for) {
+                document.getElementById('error-message').classList.remove('hidden');
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+                return;
+            }
+
+            // Start Submit
+            isSubmitting = true;
+            const btn = document.getElementById('submit-btn');
+            const originalContent = btn.innerHTML;
+            
+            btn.innerHTML = '<span>ОТПРАВКА...</span>';
+            btn.classList.add('opacity-80', 'scale-95');
+
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+
+            const dataToSend = JSON.stringify(state);
+
+            // Simulate network/animation delay then send
+            setTimeout(() => {
+                try {
+                    tg.sendData(dataToSend);
+                } catch (e) {
+                    // Fallback for browser testing (if not in Telegram)
+                    console.log("WebApp.sendData called with:", dataToSend);
+                    alert(`Data sent to bot: ${dataToSend}`);
+                    
+                    // Reset button
+                    isSubmitting = false;
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('opacity-80', 'scale-95');
+                }
+            }, 500);
+        }
+    </script>
+</body>
 </html>
